@@ -9,6 +9,7 @@ package ti.popover;
 
 import android.app.Activity;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
@@ -26,11 +27,8 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.view.TiCompositeLayout;
-import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.ViewProxy;
@@ -80,8 +78,12 @@ public class PopoverProxy extends TiViewProxy {
 
 
         if (pview != null && customView == null) {
-            //customView = pview.getNativeView();   // issue error
             customView = pview.getPopView().getRootView();
+        }
+
+        ViewGroup parentView = (ViewGroup) customView.getParent();
+        if (parentView != null) {
+            parentView.removeView(customView);
         }
 
         if (options.containsKey("view")) {
