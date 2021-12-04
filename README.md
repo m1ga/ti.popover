@@ -1,3 +1,9 @@
+# Ti.popover (Android)
+
+Based on the awesome [Balloon](https://github.com/skydoves/Balloon/) library by [@skydoves](https://github.com/skydoves).
+
+<img src="assets/demo.gif"/>
+
 ```xml
 <Popover module="ti.popover" id="popover">
     <View id="contentView">
