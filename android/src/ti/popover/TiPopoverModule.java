@@ -27,6 +27,12 @@ public class TiPopoverModule extends KrollModule
 	@Kroll.constant public static final int POPOVER_ARROW_DIRECTION_LEFT = 3;
 	@Kroll.constant public static final int POPOVER_ARROW_DIRECTION_RIGHT = 4;
 
+	@Kroll.constant public static final int POPOVER_ANIMATION_NONE = 0;
+	@Kroll.constant public static final int POPOVER_ANIMATION_FADE = 1;
+	@Kroll.constant public static final int POPOVER_ANIMATION_OVERSHOOT = 2;
+	@Kroll.constant public static final int POPOVER_ANIMATION_ELASTIC = 3;
+	@Kroll.constant public static final int POPOVER_ANIMATION_CIRCULAR = 4;
+
 	public TiPopoverModule()
 	{
 		super();

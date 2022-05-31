@@ -10,6 +10,7 @@ package ti.popover;
 import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
@@ -21,6 +22,7 @@ import com.skydoves.balloon.BalloonAnimation;
 import com.skydoves.balloon.BalloonSizeSpec;
 import com.skydoves.balloon.OnBalloonClickListener;
 import com.skydoves.balloon.OnBalloonDismissListener;
+import com.skydoves.balloon.OnBalloonOutsideTouchListener;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -43,12 +45,18 @@ public class PopoverProxy extends TiViewProxy {
     Balloon balloon = null;
     View targetView;
     int direction;
+    int anim;
     int arrowColor;
     int arrowSize;
-    ViewProxy contentView = null;
+    TiViewProxy contentView = null;
     View customView = null;
-    ViewProxy view = null;
+    TiViewProxy view = null;
     PopoverView pview;
+    ArrowOrientation orientation;
+    BalloonAnimation animation;
+    float borderRadius;
+    float transparency;
+    float arrowPosition;
     // Constructor
     public PopoverProxy() {
         super();
@@ -65,73 +73,105 @@ public class PopoverProxy extends TiViewProxy {
     public void handleCreationDict(KrollDict options) {
         super.handleCreationDict(options);
 
-        arrowColor = TiConvert.toColor((String) options.get("arrowColor"));
+        arrowColor = TiConvert.toColor((String) options.get("arrowColor"),this.getActivity());
         arrowSize = TiConvert.toInt(options.get("arrowSize"), 10);
+        if(customView != null){
+            ViewGroup parentView = (ViewGroup) customView.getParent();
+            if (parentView != null) {
+                parentView.removeView(customView);
+            }            
+        }
+        if (options.containsKey("contentView")) {
+            contentView = (TiViewProxy) options.get("contentView");
+            customView = contentView.getOrCreateView().getNativeView();
+        }
+
+        borderRadius = TiConvert.toFloat(options.get("borderRadius"), 4f);
+        transparency = TiConvert.toFloat(options.get("transparency"), 0.9f);
+        arrowPosition = TiConvert.toFloat(options.get("arrowPosition"), 0.5f);
+
+        direction = TiConvert.toInt(options.get("arrowDirection"), TiPopoverModule.POPOVER_ARROW_DIRECTION_DOWN);
+
+        orientation = ArrowOrientation.BOTTOM;
+        if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_DOWN) {
+            orientation = ArrowOrientation.BOTTOM;
+        } else if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_UP) {
+            orientation = ArrowOrientation.TOP;
+        } else if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_LEFT) {
+            orientation = ArrowOrientation.LEFT;
+        } else if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_RIGHT) {
+            orientation = ArrowOrientation.RIGHT;
+        }
+
+        anim = TiConvert.toInt(options.get("animation"), TiPopoverModule.POPOVER_ANIMATION_NONE);
+
+        animation = BalloonAnimation.NONE;
+        if (anim == TiPopoverModule.POPOVER_ANIMATION_NONE) {
+            animation = BalloonAnimation.NONE;
+        } else if (anim == TiPopoverModule.POPOVER_ANIMATION_FADE) {
+            animation = BalloonAnimation.FADE;
+        } else if (anim == TiPopoverModule.POPOVER_ANIMATION_OVERSHOOT) {
+            animation = BalloonAnimation.OVERSHOOT;
+        } else if (anim == TiPopoverModule.POPOVER_ANIMATION_ELASTIC) {
+            animation = BalloonAnimation.ELASTIC;
+        } else if (anim == TiPopoverModule.POPOVER_ANIMATION_CIRCULAR) {
+            animation = BalloonAnimation.CIRCULAR;
+        }
+
     }
 
     // Methods
     @Kroll.method
     public void show(KrollDict options) {
 
-        LifecycleOwner lifecycle = (LifecycleOwner) TiApplication.getAppCurrentActivity();
+        // LifecycleOwner lifecycle = (LifecycleOwner) TiApplication.getAppCurrentActivity();
 
-
-
-        if (pview != null && customView == null) {
-            customView = pview.getPopView().getRootView();
-        }
-
-        ViewGroup parentView = (ViewGroup) customView.getParent();
-        if (parentView != null) {
-            parentView.removeView(customView);
-        }
+        // if (pview != null && customView == null) {
+        //     customView = pview.getPopView().getRootView();
+        // }
 
         if (options.containsKey("view")) {
-            view = (ViewProxy) options.get("view");
+            view = (TiViewProxy) options.get("view");
             targetView = view.getOrCreateView().getNativeView();
-        }
-        direction = options.getInt("direction");
-
-        ArrowOrientation orientation = ArrowOrientation.BOTTOM;
-        if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_DOWN) {
-            orientation = ArrowOrientation.BOTTOM;
-        } else if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_UP) {
-            orientation = ArrowOrientation.TOP;
-        } else if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_LEFT) {
-            orientation = ArrowOrientation.RIGHT;
-        } else if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_RIGHT) {
-            orientation = ArrowOrientation.LEFT;
         }
 
         if (balloon != null) {
-            balloon.dismiss();
-            balloon.clearAllPreferences();
-            balloon = null;
+            balloon.dismissWithDelay(150L);
+            balloon.clearAllPreferences(); 
+            balloon = null;         
         }
+
         Balloon.Builder balloonBuilder = new Balloon.Builder(TiApplication.getAppCurrentActivity())
-                .setArrowSize(arrowSize)
-                .setArrowOrientation(orientation)
-                .setArrowPositionRules(ArrowPositionRules.ALIGN_BALLOON)
-                .setArrowPosition(0.5f)
-                .setWidth(BalloonSizeSpec.WRAP)
-                .setHeight(BalloonSizeSpec.WRAP)
-                .setCornerRadius(4f)
-                .setAlpha(0.9f)
-                .setArrowColor(arrowColor)
-                .setOnBalloonClickListener(new OnBalloonClickListener() {
-                    @Override
-                    public void onBalloonClick(@NonNull View view) {
-                        fireEvent("click", new KrollDict());
-                    }
-                })
-                .setOnBalloonDismissListener(new OnBalloonDismissListener() {
-                    @Override
-                    public void onBalloonDismiss() {
-                        fireEvent("close", new KrollDict());
-                    }
-                })
-                .setBalloonAnimation(BalloonAnimation.ELASTIC)
-                .setLifecycleOwner(lifecycle);
+            .setArrowSize(arrowSize)
+            .setArrowOrientation(orientation)
+            .setArrowPositionRules(ArrowPositionRules.ALIGN_BALLOON)
+            .setArrowPosition(arrowPosition)
+            .setWidth(BalloonSizeSpec.WRAP)
+            .setHeight(BalloonSizeSpec.WRAP)
+            .setCornerRadius(borderRadius)
+            .setAlpha(transparency)
+            .setArrowColor(arrowColor)
+            .setDismissWhenTouchOutside(true)
+            // .setOnBalloonClickListener(new OnBalloonClickListener() {
+            //     @Override
+            //     public void onBalloonClick(@NonNull View view) {
+            //         // if (balloon != null) {
+            //              Log.e(LCAT, "++++++++++++++++++++ click");
+
+            //              fireEvent("click", new KrollDict());
+            //         // }
+            //     }
+            // })
+            .setOnBalloonDismissListener(new OnBalloonDismissListener() {
+                @Override
+                public void onBalloonDismiss() {
+                     Log.e(LCAT, "++++++++++++++++++++ dismiss");
+                     fireEvent("closed", new KrollDict());
+                }
+            })
+            //.setDismissWhenLifecycleOnPause(true)
+            .setBalloonAnimation(animation);
+            //.setLifecycleOwner(lifecycle);
 
 
         if (customView != null) {
@@ -146,9 +186,9 @@ public class PopoverProxy extends TiViewProxy {
             } else if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_UP) {
                 balloon.showAlignBottom(targetView);
             } else if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_LEFT) {
-                balloon.showAlignLeft(targetView);
-            } else if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_RIGHT) {
                 balloon.showAlignRight(targetView);
+            } else if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_RIGHT) {
+                balloon.showAlignLeft(targetView);
             } else {
                 balloon.showAsDropDown(targetView);
             }
@@ -156,5 +196,14 @@ public class PopoverProxy extends TiViewProxy {
             Log.e(LCAT, "You must set attachTo");
         }
 
+    }
+
+
+    @Kroll.method
+    public void hide(KrollDict options) {
+        if (balloon != null) {
+
+             balloon.dismissWithDelay(30L);
+        }
     }
 }
