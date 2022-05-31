@@ -2,21 +2,30 @@
 
 Based on the awesome [Balloon](https://github.com/skydoves/Balloon/) library by [@skydoves](https://github.com/skydoves).
 
-<img src="assets/demo.gif"/>
-
-```xml
-<Popover module="ti.popover" id="popover">
-    <View id="contentView">
-        <Label text="test"/>
-    </View>
-</Popover>
-
-<View id="attach_to"/>
-```
-
 ```js
-$.popover.show({
-	view: $.attach_to,
-	direction: require("ti.popover").POPOVER_ARROW_DIRECTION_DOWN
-})
+
+var popOverModule = require("ti.popover");
+
+var popover = popOverModule.createPopover({
+	arrowSize:20,
+	arrowColor:'#e0e0e0',
+	height:Ti.UI.SIZE,
+	width:Ti.UI.SIZE,
+	contentView:// contentView that will be inside the popover,
+	borderRadius:12,
+	arrowPosition:0.5,
+	transparency:1.0,
+	animation:popOverModule.POPOVER_ANIMATION_FADE,
+	arrowDirection:popOverModule.POPOVER_ARROW_DIRECTION_RIGHT
+});
+
+popover.addEventListener('hide', function() {
+
+});
+
+popover.show({ 
+	view: // view the popover will show at this views position
+});	
+
+
 ```
