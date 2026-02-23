@@ -2,7 +2,7 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 1.0.0
+version: 2.0.0
 apiversion: 4
 architectures: arm64-v8a armeabi-v7a x86 x86_64
 description: ti.popover
@@ -15,4 +15,4 @@ name: ti.popover
 moduleid: ti.popover
 guid: 50aec064-e55c-49e1-83de-e0f556057331
 platform: android
-minsdk: 10.1.0.GA
+minsdk: 12.3.0

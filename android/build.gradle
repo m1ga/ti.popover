@@ -1,7 +1,5 @@
-repositories {
-   maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-}
+repositories {}
 
 dependencies {
-    implementation "com.github.skydoves:balloon:1.4.1-SNAPSHOT"
+    implementation "com.github.skydoves:balloon:1.7.3"
 }

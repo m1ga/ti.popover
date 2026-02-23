@@ -75,8 +75,6 @@ public class PopoverProxy extends TiViewProxy {
 
         LifecycleOwner lifecycle = (LifecycleOwner) TiApplication.getAppCurrentActivity();
 
-
-
         if (pview != null && customView == null) {
             customView = pview.getPopView().getRootView();
         }
@@ -98,9 +96,9 @@ public class PopoverProxy extends TiViewProxy {
         } else if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_UP) {
             orientation = ArrowOrientation.TOP;
         } else if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_LEFT) {
-            orientation = ArrowOrientation.RIGHT;
+            orientation = ArrowOrientation.START;
         } else if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_RIGHT) {
-            orientation = ArrowOrientation.LEFT;
+            orientation = ArrowOrientation.END;
         }
 
         if (balloon != null) {
@@ -146,9 +144,9 @@ public class PopoverProxy extends TiViewProxy {
             } else if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_UP) {
                 balloon.showAlignBottom(targetView);
             } else if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_LEFT) {
-                balloon.showAlignLeft(targetView);
+                balloon.showAlignStart(targetView);
             } else if (direction == TiPopoverModule.POPOVER_ARROW_DIRECTION_RIGHT) {
-                balloon.showAlignRight(targetView);
+                balloon.showAlignEnd(targetView);
             } else {
                 balloon.showAsDropDown(targetView);
             }
