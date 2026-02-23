@@ -65,7 +65,7 @@ public class PopoverProxy extends TiViewProxy {
     public void handleCreationDict(KrollDict options) {
         super.handleCreationDict(options);
 
-        arrowColor = TiConvert.toColor((String) options.get("arrowColor"));
+        arrowColor = TiConvert.toColor((String) options.get("arrowColor"), this.getActivity());
         arrowSize = TiConvert.toInt(options.get("arrowSize"), 10);
     }
 
